@@ -1,6 +1,10 @@
 import { Input, Select } from "antd";
 import React from "react";
 import useForm from "../Hooks/useForm";
+import { uploadFile } from "../helpers/uploadFile";
+import axios from "axios";
+import { url } from "../helpers/url";
+import { ContDiv, FormStyle } from "../Styles/styles";
 
 function Registrar() {
   const [ dataForm,
@@ -17,24 +21,39 @@ function Registrar() {
     code: ""
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(e.target)
-    console.log(dataForm);
+  const handleSubmit = async (e) => {
+    e.preventDefault(); 
+
+    let obj = {
+      id: Math.floor(Math.random() * 100),
+      nombre: dataForm.nombre,
+      tipoDoc: dataForm.tipoDoc,
+      numDocumento:  dataForm.numDocumento,
+      celular: `${dataForm.code}-${dataForm.celular}`,
+      imagen: dataForm.imagen
+    }
+    const resp = await axios.post(url, obj)
+    console.log(resp)
+
     reset();
   };
 
+const handleUpload = (e) => {
+  const file = e.target.files[0]
+  uploadFile(file)
+ .then(resp => handleChangeImagen(resp))
 
+}
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
+    <ContDiv>
+      <FormStyle onSubmit={handleSubmit}>
         <Input
           name="nombre"
           onChange={handleOnChange}
           value={dataForm.nombre}
           placeholder="Ingrese Nombre Y Apellido"
         />
-        <Input.Group compact>
+       
           <Select
             name="tipoDoc"
             defaultValue="Elegir"
@@ -51,9 +70,8 @@ function Registrar() {
             onChange={handleOnChange}
             value={dataForm.numDocumento}
             placeholder="Ingrese número de documento"
-          />
-        </Input.Group>
-        <Input.Group compact>
+          />    
+       
           <Select
             name="cel"
             defaultValue="Elegir"
@@ -72,13 +90,13 @@ function Registrar() {
             placeholder="Ingrese número de celular"
             type="number"
           />
-        </Input.Group>
-        <input type="file" name="imagen"  onChange={handleChangeImagen}/>
+    
+        <input type="file" name="imagen"  onChange={handleUpload}/>
         <button type="submit" >
           Guardar
         </button>
-      </form>
-    </div>
+      </FormStyle>
+    </ContDiv>
   );
 }
 
